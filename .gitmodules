@@ -50,3 +50,6 @@
 	path = lib/permit2
 	url = https://github.com/Uniswap/permit2
 	ignore = dirty 
+[submodule "lib/uniswap-lib"]
+	path = lib/uniswap-lib
+	url = https://github.com/Uniswap/uniswap-lib
