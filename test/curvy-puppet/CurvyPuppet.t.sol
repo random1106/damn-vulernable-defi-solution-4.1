@@ -9,8 +9,6 @@ import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
 import {CurvyPuppetLending, IERC20} from "../../src/curvy-puppet/CurvyPuppetLending.sol";
 import {CurvyPuppetOracle} from "../../src/curvy-puppet/CurvyPuppetOracle.sol";
 import {IStableSwap} from "../../src/curvy-puppet/IStableSwap.sol";
-import {DataTypes} from "lib/aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol";
-import {IPool} from "lib/aave-v3-core/contracts/interfaces/IPool.sol";
 import {Attacker} from "./Attacker.sol";
 
 contract CurvyPuppetChallenge is Test {

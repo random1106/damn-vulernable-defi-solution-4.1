@@ -6,7 +6,6 @@ import {CurvyPuppetLending, IERC20} from "../../src/curvy-puppet/CurvyPuppetLend
 import {IStableSwap} from "../../src/curvy-puppet/IStableSwap.sol";
 import {IPermit2} from "permit2/interfaces/IPermit2.sol";
 import {console} from "forge-std/Test.sol";
-import {IFlashLoanSimpleReceiver} from "lib/aave-v3-core/contracts/flashloan/interfaces/IFlashLoanSimpleReceiver.sol";
 
 struct V2ReserveData {
     //stores the reserve configuration
