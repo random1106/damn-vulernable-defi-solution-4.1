@@ -2,6 +2,8 @@
 
 Full solutions to Damn Vulernable DeFi v4.1
 
+Detailed explanations can be found at: https://medium.com/@random1106
+
 1.	Unstoppable
 2.	Naive receiver
 3.	Truster
