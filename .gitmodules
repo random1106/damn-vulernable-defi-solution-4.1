@@ -53,3 +53,9 @@
 [submodule "lib/uniswap-lib"]
 	path = lib/uniswap-lib
 	url = https://github.com/Uniswap/uniswap-lib
+[submodule "lib/aave-v3-periphery"]
+	path = lib/aave-v3-periphery
+	url = https://github.com/aave/aave-v3-periphery
+[submodule "lib/protocol-v2"]
+	path = lib/protocol-v2
+	url = https://github.com/aave/protocol-v2
